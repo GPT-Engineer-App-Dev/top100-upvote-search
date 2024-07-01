@@ -61,12 +61,13 @@ const Index = () => {
         )
       );
       let newStories = await Promise.all(storyPromises);
-      // Combine existing stories with new stories
-      const combinedStories = [...stories, ...newStories];
-      // Sort combined stories by score in descending order
-      combinedStories.sort((a, b) => b.score - a.score);
-      setStories(combinedStories);
-      setFilteredStories(combinedStories);
+      // Sort new stories by score in descending order
+      newStories = newStories.sort((a, b) => b.score - a.score);
+      setStories((prevStories) => [...prevStories, ...newStories]);
+      setFilteredStories((prevFilteredStories) => [
+        ...prevFilteredStories,
+        ...newStories,
+      ]);
       setVisibleStories(newVisibleStories);
     } catch (error) {
       console.error("Failed to load more stories:", error);
