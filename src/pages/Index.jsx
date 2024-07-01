@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -9,8 +8,6 @@ const Index = () => {
   const [filteredStories, setFilteredStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [visibleStories, setVisibleStories] = useState(10); // Number of stories to show initially
-  const [allStories, setAllStories] = useState([]); // All fetched stories
 
   useEffect(() => {
     const fetchTopStories = async () => {
@@ -29,9 +26,8 @@ const Index = () => {
         let stories = await Promise.all(storyPromises);
         // Sort stories by score in descending order
         stories = stories.sort((a, b) => b.score - a.score);
-        setStories(stories.slice(0, visibleStories));
-        setAllStories(stories);
-        setFilteredStories(stories.slice(0, visibleStories));
+        setStories(stories);
+        setFilteredStories(stories);
       } catch (error) {
         console.error("Failed to fetch stories:", error);
       } finally {
@@ -40,7 +36,7 @@ const Index = () => {
     };
 
     fetchTopStories();
-  }, [visibleStories]);
+  }, []);
 
   useEffect(() => {
     const filtered = stories.filter((story) =>
@@ -48,10 +44,6 @@ const Index = () => {
     );
     setFilteredStories(filtered);
   }, [searchTerm, stories]);
-
-  const loadMoreStories = () => {
-    setVisibleStories((prevVisibleStories) => prevVisibleStories + 10);
-  };
 
   return (
     <div className="container mx-auto p-4">
@@ -68,29 +60,22 @@ const Index = () => {
       {loading ? (
         <Skeleton count={10} height={50} />
       ) : (
-        <div>
-          <ul>
-            {filteredStories.map((story) => (
-              <li key={story.id} className="mb-4 p-4 border rounded">
-                <h2 className="text-xl font-bold">{story.title}</h2>
-                <p>Upvotes: {story.score}</p>
-                <a
-                  href={story.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500"
-                >
-                  Read more
-                </a>
-              </li>
-            ))}
-          </ul>
-          {visibleStories < allStories.length && (
-            <div className="text-center mt-4">
-              <Button onClick={loadMoreStories}>Load More</Button>
-            </div>
-          )}
-        </div>
+        <ul>
+          {filteredStories.map((story) => (
+            <li key={story.id} className="mb-4 p-4 border rounded">
+              <h2 className="text-xl font-bold">{story.title}</h2>
+              <p>Upvotes: {story.score}</p>
+              <a
+                href={story.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500"
+              >
+                Read more
+              </a>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );
