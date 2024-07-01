@@ -11,6 +11,7 @@ const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleStories, setVisibleStories] = useState(10); // Number of stories to show initially
   const [allStories, setAllStories] = useState([]); // All fetched stories
+  const [loadingMore, setLoadingMore] = useState(false); // Loading state for "Load More" button
 
   useEffect(() => {
     const fetchTopStories = async () => {
@@ -49,8 +50,22 @@ const Index = () => {
     setFilteredStories(filtered);
   }, [searchTerm, stories]);
 
-  const loadMoreStories = () => {
-    setVisibleStories((prevVisibleStories) => prevVisibleStories + 10);
+  const loadMoreStories = async () => {
+    setLoadingMore(true);
+    try {
+      const newVisibleStories = visibleStories + 10;
+      const newStories = allStories.slice(visibleStories, newVisibleStories);
+      setStories((prevStories) => [...prevStories, ...newStories]);
+      setFilteredStories((prevFilteredStories) => [
+        ...prevFilteredStories,
+        ...newStories,
+      ]);
+      setVisibleStories(newVisibleStories);
+    } catch (error) {
+      console.error("Failed to load more stories:", error);
+    } finally {
+      setLoadingMore(false);
+    }
   };
 
   return (
@@ -89,7 +104,9 @@ const Index = () => {
           </ul>
           {visibleStories < allStories.length && (
             <div className="text-center mt-4">
-              <Button onClick={loadMoreStories}>Load More</Button>
+              <Button onClick={loadMoreStories} disabled={loadingMore}>
+                {loadingMore ? "Loading..." : "Load More"}
+              </Button>
             </div>
           )}
         </div>
