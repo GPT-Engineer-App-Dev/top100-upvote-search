@@ -23,7 +23,9 @@ const Index = () => {
             (res) => res.json()
           )
         );
-        const stories = await Promise.all(storyPromises);
+        let stories = await Promise.all(storyPromises);
+        // Sort stories by score in descending order
+        stories = stories.sort((a, b) => b.score - a.score);
         setStories(stories);
         setFilteredStories(stories);
       } catch (error) {
