@@ -70,9 +70,11 @@ const Index = () => {
       ) : (
         <div>
           <ul>
-            {filteredStories.map((story) => (
+            {filteredStories.map((story, index) => (
               <li key={story.id} className="mb-4 p-4 border rounded">
-                <h2 className="text-xl font-bold">{story.title}</h2>
+                <h2 className="text-xl font-bold">
+                  {index + 1}. {story.title}
+                </h2>
                 <p>Upvotes: {story.score}</p>
                 <a
                   href={story.url}
