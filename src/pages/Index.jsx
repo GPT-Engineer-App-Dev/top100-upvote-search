@@ -10,7 +10,7 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleStories, setVisibleStories] = useState(10); // Number of stories to show initially
-  const [allStories, setAllStories] = useState([]); // All fetched stories
+  const [allStoryIds, setAllStoryIds] = useState([]); // All fetched story IDs
   const [loadingMore, setLoadingMore] = useState(false); // Loading state for "Load More" button
 
   useEffect(() => {
@@ -21,8 +21,9 @@ const Index = () => {
           "https://hacker-news.firebaseio.com/v0/topstories.json"
         );
         const storyIds = await response.json();
-        const top100Ids = storyIds.slice(0, 100);
-        const storyPromises = top100Ids.map((id) =>
+        setAllStoryIds(storyIds);
+        const top10Ids = storyIds.slice(0, 10);
+        const storyPromises = top10Ids.map((id) =>
           fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then(
             (res) => res.json()
           )
@@ -30,9 +31,8 @@ const Index = () => {
         let stories = await Promise.all(storyPromises);
         // Sort stories by score in descending order
         stories = stories.sort((a, b) => b.score - a.score);
-        setStories(stories.slice(0, visibleStories));
-        setAllStories(stories);
-        setFilteredStories(stories.slice(0, visibleStories));
+        setStories(stories);
+        setFilteredStories(stories);
       } catch (error) {
         console.error("Failed to fetch stories:", error);
       } finally {
@@ -54,7 +54,15 @@ const Index = () => {
     setLoadingMore(true);
     try {
       const newVisibleStories = visibleStories + 10;
-      const newStories = allStories.slice(visibleStories, newVisibleStories);
+      const newStoryIds = allStoryIds.slice(visibleStories, newVisibleStories);
+      const storyPromises = newStoryIds.map((id) =>
+        fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then(
+          (res) => res.json()
+        )
+      );
+      let newStories = await Promise.all(storyPromises);
+      // Sort new stories by score in descending order
+      newStories = newStories.sort((a, b) => b.score - a.score);
       setStories((prevStories) => [...prevStories, ...newStories]);
       setFilteredStories((prevFilteredStories) => [
         ...prevFilteredStories,
@@ -102,7 +110,7 @@ const Index = () => {
               </li>
             ))}
           </ul>
-          {visibleStories < allStories.length && (
+          {visibleStories < allStoryIds.length && (
             <div className="text-center mt-4">
               <Button onClick={loadMoreStories} disabled={loadingMore}>
                 {loadingMore ? "Loading..." : "Load More"}
