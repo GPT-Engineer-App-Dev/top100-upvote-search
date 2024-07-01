@@ -41,7 +41,7 @@ const Index = () => {
     };
 
     fetchTopStories();
-  }, [visibleStories]);
+  }, []); // Run only once on component mount
 
   useEffect(() => {
     const filtered = stories.filter((story) =>
